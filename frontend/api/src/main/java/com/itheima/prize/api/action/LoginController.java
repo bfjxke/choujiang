@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -35,9 +37,15 @@ public class LoginController {
             @ApiImplicitParam(name="account",value = "用户名",required = true),
             @ApiImplicitParam(name="password",value = "密码",required = true)
     })
-    public ApiResult login(HttpServletRequest request, @RequestParam String account,@RequestParam String password) {
-        //TODO
-        return null;
+    public ApiResult login(HttpServletRequest request, @RequestParam String account,
+                           @RequestParam String password) {
+
+        HttpSession session = request.getSession();
+        String clientId = request.getRemoteAddr();
+
+        ApiResult apiResult= userService.login(account,password,session);
+        apiResult.setNow(new Date());
+        return apiResult;
     }
 
     @GetMapping("/logout")
