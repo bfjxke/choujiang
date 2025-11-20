@@ -24,6 +24,12 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <!-- Ensure javax.servlet classes are available at runtime for CardUserServiceImpl method signatures -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+
 
     </dependencies>
 

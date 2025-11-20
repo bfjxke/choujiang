@@ -2,7 +2,11 @@ package com.itheima.prize.commons.db.service;
 
 import com.itheima.prize.commons.db.entity.CardUser;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.itheima.prize.commons.db.entity.ViewCardUserHit;
 import com.itheima.prize.commons.utils.ApiResult;
+import com.itheima.prize.commons.utils.PageBean;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
 * @author shawn
@@ -13,4 +17,5 @@ public interface CardUserService extends IService<CardUser> {
 
 
     ApiResult login(String account, String password, javax.servlet.http.HttpSession session);
+
 }

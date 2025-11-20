@@ -6,6 +6,7 @@ import com.itheima.prize.commons.db.entity.CardUser;
 import com.itheima.prize.commons.db.entity.CardUserDto;
 import com.itheima.prize.commons.db.entity.ViewCardUserHit;
 import com.itheima.prize.commons.db.mapper.ViewCardUserHitMapper;
+import com.itheima.prize.commons.db.service.CardUserService;
 import com.itheima.prize.commons.db.service.GameLoadService;
 import com.itheima.prize.commons.db.service.ViewCardUserHitService;
 import com.itheima.prize.commons.utils.ApiResult;
@@ -35,12 +36,21 @@ public class UserController {
     private ViewCardUserHitService hitService;
     @Autowired
     private GameLoadService loadService;
+    @Autowired
+    private CardUserService cardUserService;
 
     @GetMapping("/info")
     @ApiOperation(value = "用户信息")
     public ApiResult info(HttpServletRequest request) {
-        //TODO
-        return null;
+        HttpSession session = request.getSession();
+        CardUser user = (CardUser) session.getAttribute("user");
+        if(user==null){
+            return new ApiResult(0,"登录超时",null);
+        }
+        CardUserDto dto=new CardUserDto(user);
+        dto.setGames(loadService.getGamesNumByUserId(user.getId()));
+        dto.setProducts(loadService.getPrizesNumByUserId(user.getId()));
+        return new ApiResult(1,"成功",dto);
     }
 
     @GetMapping("/hit/{gameid}/{curpage}/{limit}")
@@ -51,8 +61,9 @@ public class UserController {
             @ApiImplicitParam(name = "limit",value = "每页条数",defaultValue = "10",dataType = "int",example = "3")
     })
     public ApiResult hit(@PathVariable int gameid,@PathVariable int curpage,@PathVariable int limit,HttpServletRequest request) {
-        //TODO
-        return null;
+        PageBean<ViewCardUserHit> date= hitService.jiang(gameid,curpage,limit,request);
+
+        return new ApiResult(1,"成功",date);
     }
 
 

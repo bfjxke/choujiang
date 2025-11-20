@@ -2,6 +2,9 @@ package com.itheima.prize.commons.db.service;
 
 import com.itheima.prize.commons.db.entity.ViewCardUserHit;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.itheima.prize.commons.utils.PageBean;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
 * @author shawn
@@ -10,4 +13,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface ViewCardUserHitService extends IService<ViewCardUserHit> {
 
+    /**
+     * 查询获奖
+     */
+    PageBean<ViewCardUserHit> jiang(int gameid, int curpage, int limit, HttpServletRequest request);
 }

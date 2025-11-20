@@ -3,6 +3,15 @@
 #### 介绍
 企业红包雨项目
 
+找到backend包下的：RuoYiApplication类，启动里面的main方法
+然后访问： http://localhost:8888
+
+启动api及msg下的main方法，确保可以正常启动
+访问swagger： http://localhost:9001/doc.html 
+
+Nginx
+http://localhost
+
 
 #### 本地启动教程
 

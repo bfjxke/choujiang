@@ -51,8 +51,11 @@ public class LoginController {
     @GetMapping("/logout")
     @ApiOperation(value = "退出")
     public ApiResult logout(HttpServletRequest request) {
-        //TODO
-        return null;
+        HttpSession session = request.getSession();
+        if(session!=null){
+            session.invalidate();
+        }
+        return new ApiResult(1,"退出成功",null);
     }
 
 }
