@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.xml.crypto.Data;
 import java.util.Date;
 import java.util.List;
 
@@ -57,8 +58,8 @@ public class GameController {
             @ApiImplicitParam(name="gameid",value = "活动id",example = "1",required = true)
     })
     public ApiResult<CardGame> info(@PathVariable int gameid) {
-        //TODO
-        return null;
+        CardGame data= gameService.info(gameid);
+        return new ApiResult<>(1,"成功",data);
     }
 
     @GetMapping("/products/{gameid}")
@@ -67,8 +68,9 @@ public class GameController {
             @ApiImplicitParam(name="gameid",value = "活动id",example = "1",required = true)
     })
     public ApiResult<List<CardProductDto>> products(@PathVariable int gameid) {
-        //TODO
-        return null;
+        List<CardProductDto>data=loadService.products(gameid);
+
+        return new ApiResult<>(1,"成功",data);
     }
 
     @GetMapping("/hit/{gameid}/{curpage}/{limit}")
@@ -79,8 +81,10 @@ public class GameController {
             @ApiImplicitParam(name = "limit",value = "每页条数",defaultValue = "10",dataType = "int",example = "3",required = true)
     })
     public ApiResult<PageBean<ViewCardUserHit>> hit(@PathVariable int gameid,@PathVariable int curpage,@PathVariable int limit) {
-        //TODO
-        return null;
+
+        PageBean<ViewCardUserHit>data= hitService.hit(gameid,curpage,limit);
+
+        return new ApiResult<>(1,"成功",data);
     }
 
 

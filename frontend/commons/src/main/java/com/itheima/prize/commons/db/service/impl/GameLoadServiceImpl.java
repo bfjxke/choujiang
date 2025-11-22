@@ -27,4 +27,11 @@ public class GameLoadServiceImpl implements GameLoadService {
     public Integer getPrizesNumByUserId(int userid) {
         return loadMapper.getPrizesNumByUserId(userid);
     }
+
+
+    //奖品信息
+    @Override
+    public List<CardProductDto> products(int gameid) {
+        return this.getByGameId(gameid);
+    }
 }

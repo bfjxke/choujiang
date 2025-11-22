@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface GameLoadService {
 
-    /*
+    /**
      * 根据活动获取绑定的奖品以及数量
      * */
     public List<CardProductDto> getByGameId(int gameId);
@@ -23,4 +23,7 @@ public interface GameLoadService {
      * @return
      */
     public Integer getPrizesNumByUserId(int userid);
+
+    //奖品信息
+    List<CardProductDto> products(int gameid);
 }

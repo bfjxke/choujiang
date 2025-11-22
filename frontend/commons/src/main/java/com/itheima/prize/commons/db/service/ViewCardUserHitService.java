@@ -17,4 +17,7 @@ public interface ViewCardUserHitService extends IService<ViewCardUserHit> {
      * 查询获奖
      */
     PageBean<ViewCardUserHit> jiang(int gameid, int curpage, int limit, HttpServletRequest request);
+
+    //中将列表
+    PageBean<ViewCardUserHit> hit(int gameid, int curpage, int limit);
 }

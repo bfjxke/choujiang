@@ -2,7 +2,11 @@ package com.itheima.prize.commons.db.service;
 
 import com.itheima.prize.commons.db.entity.CardGame;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.itheima.prize.commons.db.entity.CardProductDto;
+import com.itheima.prize.commons.db.entity.ViewCardUserHit;
 import com.itheima.prize.commons.utils.PageBean;
+
+import java.util.List;
 
 /**
 * @author shawn
@@ -12,4 +16,9 @@ import com.itheima.prize.commons.utils.PageBean;
 public interface CardGameService extends IService<CardGame> {
 
     PageBean<CardGame> list(int status, int curpage, int limit);
+
+    CardGame info(int gameid);
+
+
+
 }

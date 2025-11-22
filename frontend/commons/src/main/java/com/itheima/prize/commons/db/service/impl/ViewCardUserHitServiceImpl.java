@@ -43,6 +43,16 @@ public class ViewCardUserHitServiceImpl extends ServiceImpl<ViewCardUserHitMappe
 
         return new PageBean<ViewCardUserHit>(result);
     }
+
+
+    //查询中奖列表
+    @Override
+    public PageBean<ViewCardUserHit> hit(int gameid, int curpage, int limit) {
+        QueryWrapper<ViewCardUserHit> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("gameid",gameid);
+        Page<ViewCardUserHit> p=this.page(new Page<>(curpage,limit),queryWrapper);
+        return new PageBean<ViewCardUserHit>(p);
+    }
 }
 
 
