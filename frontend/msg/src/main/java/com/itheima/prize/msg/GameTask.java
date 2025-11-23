@@ -97,7 +97,20 @@ public class GameTask {
             redisUtil.rightPushAll(RedisKeys.TOKENS + game.getId(),tokenList);
             redisUtil.expire(RedisKeys.TOKENS + game.getId(),expire);
 
-            CardGameRules
+            List<CardGameRules> productRelus = gameRulesService.listByMap(queryMap);
+            for (CardGameRules r : productRelus) {
+                redisUtil.hset(RedisKeys.MAXGOAL+game.getId(),r.getUserlevel()+"",r.getGoalTimes());
+                redisUtil.hset(RedisKeys.MAXENTER+game.getId(),r.getUserlevel()+"",r.getEnterTimes());
+                redisUtil.hset(RedisKeys.RANDOMRATE+game.getId(),r.getUserlevel()+"",r.getRandomRate());
+                log.info("load rules:level={},enter={},goal={},rate={}",
+                        r.getUserlevel(),r.getEnterTimes(),r.getGoalTimes(),r.getRandomRate());
+            }
+            redisUtil.expire(RedisKeys.RANDOMRATE+game.getId(),expire);
+            redisUtil.expire(RedisKeys.MAXENTER+game.getId(),expire);
+            redisUtil.expire(RedisKeys.MAXGOAL+game.getId(),expire);
+
+            game.setStatus(1);
+            gameService.updateById(game);
 
         }
-}
+}}
