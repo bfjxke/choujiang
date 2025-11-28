@@ -40,77 +40,71 @@ public class GameTask {
     public void execute() {
         System.out.printf("scheduled!"+new Date());
         //查询一分钟内的活动
-        QueryWrapper<CardGame> gameQueryWrapper = new QueryWrapper<>();
-        Date now=new Date();
-        gameQueryWrapper.gt("starttime",now);  gameQueryWrapper.le("starttime",DateUtils.addMinutes(now,1));
-        List<CardGame> list = gameService.list(gameQueryWrapper);
+        QueryWrapper<CardGame> queryWrapper = new QueryWrapper<>();
+        Date now=  new Date();
+        queryWrapper.gt("starttime",now);   queryWrapper.lt("starttime",DateUtils.addMinutes(now,1));
+        List<CardGame> list = gameService.list(queryWrapper);
 
-        if(list==null||list.size()==0){
-            log.info("game list scan : size = 0");
-            return;
-        }
-        log.info("game list scan : size = {}",list.size());
-        //遍历列表处理
-        for (CardGame game : list) {
-
-            long begin = game.getStarttime().getTime();
-            long end = game.getEndtime().getTime();
-            //活动总时间
-            long duration = end - begin;
-            //过期时间（活动剩余时间）
-            long expire = (end - now.getTime()) / 1000;
-            Map queryMap = new HashMap();
-            queryMap.put("gameid",game.getId());
-
+        //遍历活动
+        for (CardGame cardGame : list) {
+            long begin = cardGame.getStarttime().getTime();
+            long end = cardGame.getEndtime().getTime();
+            long duration =end-begin;
+            long expire =(end-now.getTime())/1000;
             //活动基本信息
-            game.setStatus(1);
-            redisUtil.set(RedisKeys.INFO+game.getId(),game,-1);
-            log.info("load game info:{}{}{}{}",game.getId(),game.getTitle(),game.getStarttime(),game.getEndtime());
+            HashMap queryMap = new HashMap<>();
+            queryMap.put(cardGame.getId(),cardGame);
+            redisUtil.set(RedisKeys.INFO+cardGame.getId(),cardGame);
 
             //奖品基本信息
-            List<CardProductDto> products = gameLoadService.getByGameId(game.getId());
-            HashMap<Integer, CardProductDto> productsMap = new HashMap<>(products.size());
-            for (CardProductDto p : products) {
-                productsMap.put(p.getId(),p);
+            List<CardProductDto> productDtoList = gameLoadService.getByGameId(cardGame.getId());
+            HashMap<Integer, CardProductDto> productDTOMap = new HashMap<>(productDtoList.size());
+            for (CardProductDto productDTO : productDtoList) {
+                productDTOMap.put(productDTO.getId(),productDTO);
             }
-            log.info("load product type:{}",products.size());
+            log.info("load product type:{}",productDtoList.size());
 
-            //奖品数量等配置信息
-            List<CardGameProduct> gameProducts = gameProductService.listByMap(queryMap);
-            log.info("load bind product:{}",gameProducts.size());
+
+            //奖品配置信息
+            List<CardGameProduct>productsNumber = gameProductService.listByMap(queryMap);
+            log.info("load bind product:{}",productsNumber.size());
 
             //令牌桶
-            List<Long> tokenList = new ArrayList();
-            for (CardGameProduct product : gameProducts) {
+            List<Long> tokenList=new ArrayList<>();
+            for (CardGameProduct product : productsNumber) {
                 for(int i=0;i<product.getAmount();i++){
-                    long rnd = begin + new Random().nextInt((int) duration);
+                    Long rnd=begin+new Random().nextInt((int)duration);
                     Long token=rnd*1000+new Random().nextInt(1000);
                     tokenList.add(token);
-                    log.info("token -> game : {} -> {}",token/1000 ,productsMap.get(product.getProductid()).getName());
-                    redisUtil.set(RedisKeys.TOKEN+product.getGameid()+"_"+token,productsMap.get(product.getProductid()),expire);
+                    log.info("token -> game : {} -> {}",token/1000 ,productDTOMap.get(product.getProductid()).getName());
+                    redisUtil.set(RedisKeys.TOKEN+product.getGameid()+"_"+token,productDTOMap.get(product.getProductid()));
                 }
             }
             Collections.sort(tokenList);
-            log.info("load tkoens:{}",tokenList);
+            log.info("load tokens:{}",tokenList);
+
 
             //从右侧压入队列
-            redisUtil.rightPushAll(RedisKeys.TOKENS + game.getId(),tokenList);
-            redisUtil.expire(RedisKeys.TOKENS + game.getId(),expire);
+            redisUtil.rightPushAll(RedisKeys.TOKENS + cardGame.getId(),tokenList);
+            redisUtil.expire(RedisKeys.TOKENS + cardGame.getId(),expire);
 
+            //奖品配置策略
             List<CardGameRules> productRelus = gameRulesService.listByMap(queryMap);
             for (CardGameRules r : productRelus) {
-                redisUtil.hset(RedisKeys.MAXGOAL+game.getId(),r.getUserlevel()+"",r.getGoalTimes());
-                redisUtil.hset(RedisKeys.MAXENTER+game.getId(),r.getUserlevel()+"",r.getEnterTimes());
-                redisUtil.hset(RedisKeys.RANDOMRATE+game.getId(),r.getUserlevel()+"",r.getRandomRate());
+                redisUtil.hset(RedisKeys.MAXGOAL+cardGame.getId(),r.getUserlevel()+"",r.getGoalTimes());
+                redisUtil.hset(RedisKeys.MAXENTER+cardGame.getId(),r.getUserlevel()+"",r.getEnterTimes());
+                redisUtil.hset(RedisKeys.RANDOMRATE+cardGame.getId(),r.getUserlevel()+"",r.getRandomRate());
                 log.info("load rules:level={},enter={},goal={},rate={}",
                         r.getUserlevel(),r.getEnterTimes(),r.getGoalTimes(),r.getRandomRate());
             }
-            redisUtil.expire(RedisKeys.RANDOMRATE+game.getId(),expire);
-            redisUtil.expire(RedisKeys.MAXENTER+game.getId(),expire);
-            redisUtil.expire(RedisKeys.MAXGOAL+game.getId(),expire);
+            redisUtil.expire(RedisKeys.RANDOMRATE+cardGame.getId(),expire);
+            redisUtil.expire(RedisKeys.MAXENTER+cardGame.getId(),expire);
+            redisUtil.expire(RedisKeys.MAXGOAL+cardGame.getId(),expire);
 
-            game.setStatus(1);
-            gameService.updateById(game);
+            //活动状态变更为已预热，禁止管理后台再随便变动
+            cardGame.setStatus(1);
+            gameService.updateById(cardGame);
 
         }
-}}
+    }
+}

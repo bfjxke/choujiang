@@ -63,6 +63,14 @@ public final class RedisUtil {
     }
 
     /**
+     * 分布式锁
+     * @return true存在 false不存在
+     */
+    public boolean setNx(String key,Object value){
+        return redisTemplate.opsForValue().setIfAbsent(key,value);
+    }
+
+    /**
      * 删除缓存
      *
      * @param key 可以传一个值 或多个
